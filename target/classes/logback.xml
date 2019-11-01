@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOG_HOME" value="${catalina.base}/logs"/>
+
+    <appender name="TNS_PARTNER_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${LOG_HOME}/tns_partner_all.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/tns_partner_all-%d{yyyy-MM-dd-HH}.log.gz</fileNamePattern>
+            <maxHistory>180</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{HH:mm:ss.SSS}][%thread][%-5level][%X{TraceId}][sIp=%X{SERVICE_IP},uIp=%X{USER_IP},uId=%X{USER_ID},uName=%X{USER_NAME},platform=%X{SYS_PLATFORM}][%C{56}:%L] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="TNS_PARTNER_ALL_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <queueSize>10485</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>true</includeCallerData>
+        <appender-ref ref="TNS_PARTNER_ALL" />
+    </appender>
+
+    <appender name="TNS_PARTNER_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <append>true</append>
+        <file>${LOG_HOME}/tns_partner_error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/tns_partner_error_%d{yyyy-MM-dd-HH}.log.gz</fileNamePattern>
+            <maxHistory>720</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{HH:mm:ss.SSS}][%thread][%-5level][%X{TraceId}][sIp=%X{SERVICE_IP},uIp=%X{USER_IP},uId=%X{USER_ID},uName=%X{USER_NAME},platform=%X{SYS_PLATFORM}][%C{56}:%L] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="TNS_PARTNER_ERROR_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <queueSize>10485</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>true</includeCallerData>
+        <appender-ref ref="TNS_PARTNER_ERROR" />
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="TNS_PARTNER_ALL_ASYNC" />
+        <appender-ref ref="TNS_PARTNER_ERROR_ASYNC" />
+    </root>
+
+</configuration>
