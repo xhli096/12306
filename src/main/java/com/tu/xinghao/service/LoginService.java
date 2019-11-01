@@ -1,17 +1,25 @@
 package com.tu.xinghao.service;
 
+import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import cn.hutool.log.Log;
 import com.google.common.base.Strings;
+import com.tu.xinghao.constants.CommonConstant;
+import com.tu.xinghao.constants.EnumUrls;
 import com.tu.xinghao.constants.HttpConstant;
 import com.tu.xinghao.constants.ImageConstant;
 import com.tu.xinghao.handler.VerificationCodeEvent;
 import com.tu.xinghao.ui.Login;
+import com.tu.xinghao.util.Captcha;
 import com.tu.xinghao.util.CommonUtil;
 import com.tu.xinghao.util.HttpUtil;
-import org.apache.log4j.Logger;
+import com.tu.xinghao.util.Session;
+import com.tu.xinghao.vo.UrlConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.*;
+import javax.annotation.PostConstruct;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,13 +32,28 @@ import java.util.Objects;
  */
 @Service
 public class LoginService {
-    private static Logger log = Logger.getLogger(LoginService.class);
+    private static Log log = Log.get();
 
+    private Session session;
+    private Captcha captcha;
 
     @Autowired
     private Login login;
 
     private StringBuilder newCode = new StringBuilder();
+
+    @PostConstruct
+    public void init() {
+        if (Objects.isNull(session)) {
+            session = new Session();
+            HttpResponse response = session.getHttpClient().send(EnumUrls.LOGIN_INIT);
+            session.setCookie(response.getCookies());
+        }
+        if (Objects.isNull(captcha)) {
+            captcha = new Captcha(session);
+        }
+        initLogDevice();
+    }
 
     public LoginService(Login login) {
         this.login = login;
@@ -49,7 +72,7 @@ public class LoginService {
      * @return
      */
     public byte[] getVerificationCode() {
-        InputStream verificationCodeInputStream = HttpUtil.doGet(HttpConstant.VERIFICATION_CODE_URL + Math.random());
+        InputStream verificationCodeInputStream = captcha.getLoginCaptchaImg();
         if (Objects.isNull(verificationCodeInputStream)) {
             try {
                 log.error("登录界面-获取12306验证码输入流失败");
@@ -68,48 +91,31 @@ public class LoginService {
         if (!checkNecessary()) {
             return;
         }
-        JComponent component = login.getFrame().getLayeredPane();
-        Component[] components = component.getComponents();
-        for (int i = 0; i < components.length; i++) {
-            if (i <= 0) {
-                newCode = new StringBuilder();
-            }
-            if (components[i] instanceof JLabel) {
-                if (i > 0) {
-                    newCode.append(",");
-                }
-                JLabel label = (JLabel) components[i];
-                newCode.append(label.getX() - 64 + (label.getIcon().getIconWidth() / 2)).append(",");
-                newCode.append(label.getY() - 179 + (label.getIcon().getIconHeight() / 2));
-            }
-        }
-        login.getMsgLabel().setText("当前验证码：" + newCode.toString());
-        System.out.println(newCode.toString());
-        String randCode = newCode.toString().replaceAll(",", "%2C");
-        System.out.println("randCode:" + randCode);
-        String temp = HttpConstant.VERIFICATION_CODE_CHECK_URL + "?callback=" + new StringBuilder(HttpConstant.VERIFICATION_CODE_CHECK_CALLBACK)
-                .append(System.currentTimeMillis()).toString()
-                + "&answer=" + randCode
-                + "&rand=sjrand&login_site=E&_=" + System.currentTimeMillis();
-        System.out.println("校验验证码url" + temp);
-
-
-/*
-        Map<String, String> params = Maps.newHashMap();
-        params.put("callback", new StringBuilder("jQuery19107521990954709705_").append(String.valueOf(System.currentTimeMillis())).toString());
-        params.put("randCode", newCode.toString());
-        params.put("rand", "sjrand");
-        params.put("login_site", "E");
-        HttpEntity entity = HttpUtil.doPost(HttpConstant.VERIFICATION_CODE_CHECK_URL, params);
-*/
-        String body = HttpUtil.outHtml(HttpUtil.doGet(temp));
-        System.out.println("body:" + body);
+        captcha.checkLoginCaptchaImg();
     }
 
-    private String buildVerificationCodeString() {
+    /**
+     * 初始化设备信息，必须要有，否则无法携带body信息，不知道为什么
+     */
+    private void initLogDevice() {
+        Session newSession = new Session();
+        UrlConfig urlConfig = EnumUrls.LOGIN_DEVICE.getUrlConfig();
+        urlConfig.setUrl(urlConfig.getUrl()
+                .replace("{0}", CommonConstant.USER_AGENT)
+                .replace("{1}", String.valueOf(System.currentTimeMillis())));
+        EnumUrls.LOGIN_DEVICE.setUrlConfig(urlConfig);
 
+        HttpResponse response = newSession.getHttpClient().send(EnumUrls.LOGIN_DEVICE);
+        String body = response.body();
+        String startIndexStr = "{";
+        String endIndexStr = "}";
 
-        return null;
+        body = body.substring(body.indexOf(startIndexStr), body.indexOf(endIndexStr) + 1);
+        JSONObject jsonObject = JSONUtil.parseObj(body);
+        String expiration = jsonObject.getStr("exp");
+        String deviceId = jsonObject.getStr("dfp");
+        this.session.setCookie("RAIL_EXPIRATION=" + expiration);
+        this.session.setCookie("RAIL_DEVICEID=" + deviceId);
     }
 
     /**
@@ -130,21 +136,9 @@ public class LoginService {
             login.getMsgLabel().setForeground(Color.RED);
             return false;
         }
-        JComponent component = login.getFrame().getLayeredPane();
-        int index = 0;
-        Component[] components = component.getComponents();
-        for (; index < components.length; index++) {
-            if (components[index] instanceof JLabel) {
-                break;
-            }
-        }
-        if (index >= components.length) {
-            log.error("未选择验证码");
-            login.getMsgLabel().setText("提示：请选择验证码");
-            login.getMsgLabel().setForeground(Color.RED);
-            return false;
-        }
 
         return true;
     }
+
+
 }

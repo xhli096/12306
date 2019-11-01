@@ -1,54 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <property name="LOG_HOME" value="${catalina.base}/logs"/>
+<configuration scan="true" scanPeriod="60 seconds">
+    <property name="LOG_HOME" value="${CATALINA_BASE}/logs" />
 
-    <appender name="TNS_PARTNER_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <append>true</append>
-        <file>${LOG_HOME}/tns_partner_all.log</file>
+    <appender name="12306" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/12306_all.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_HOME}/tns_partner_all-%d{yyyy-MM-dd-HH}.log.gz</fileNamePattern>
-            <maxHistory>180</maxHistory>
+            <fileNamePattern>${LOG_HOME}/12306/12306_all-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <maxHistory>2</maxHistory>
         </rollingPolicy>
-        <encoder>
+        <encoder charset="UTF-8">
             <pattern>[%d{HH:mm:ss.SSS}][%thread][%-5level][%X{TraceId}][sIp=%X{SERVICE_IP},uIp=%X{USER_IP},uId=%X{USER_ID},uName=%X{USER_NAME},platform=%X{SYS_PLATFORM}][%C{56}:%L] %msg%n</pattern>
         </encoder>
     </appender>
 
-    <appender name="TNS_PARTNER_ALL_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="12306_ALL_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
         <queueSize>10485</queueSize>
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>true</includeCallerData>
-        <appender-ref ref="TNS_PARTNER_ALL" />
+        <appender-ref ref="12306" />
     </appender>
 
-    <appender name="TNS_PARTNER_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="12306_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <append>true</append>
-        <file>${LOG_HOME}/tns_partner_error.log</file>
+        <file>${LOG_HOME}/12306_error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_HOME}/tns_partner_error_%d{yyyy-MM-dd-HH}.log.gz</fileNamePattern>
-            <maxHistory>720</maxHistory>
+            <fileNamePattern>${LOG_HOME}/12306/12306_error_%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <maxHistory>2</maxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>[%d{HH:mm:ss.SSS}][%thread][%-5level][%X{TraceId}][sIp=%X{SERVICE_IP},uIp=%X{USER_IP},uId=%X{USER_ID},uName=%X{USER_NAME},platform=%X{SYS_PLATFORM}][%C{56}:%L] %msg%n</pattern>
         </encoder>
     </appender>
 
-    <appender name="TNS_PARTNER_ERROR_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="12306_ERROR_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>WARN</level>
         </filter>
         <queueSize>10485</queueSize>
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>true</includeCallerData>
-        <appender-ref ref="TNS_PARTNER_ERROR" />
+        <appender-ref ref="12306_ERROR" />
+    </appender>
+
+    <!-- ch.qos.logback.core.ConsoleAppender 表示控制台输出 -->
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <Encoding>UTF-8</Encoding>
+        <!--
+        日志输出格式：%d表示日期时间，%thread表示线程名，%-5level：级别从左显示5个字符宽度
+        %logger{50} 表示logger名字最长50个字符，否则按照句点分割。 %msg：日志消息，%n是换行符
+        -->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>[%d{HH:mm:ss.SSS}][%thread][%-5level][%X{TraceId}][sIp=%X{SERVICE_IP},uIp=%X{USER_IP},uId=%X{USER_ID},uName=%X{USER_NAME},platform=%X{SYS_PLATFORM}][%C{56}:%L] %msg%n</pattern>
+        </layout>
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="TNS_PARTNER_ALL_ASYNC" />
-        <appender-ref ref="TNS_PARTNER_ERROR_ASYNC" />
+        <appender-ref ref="12306_ALL_ASYNC" />
+        <appender-ref ref="12306_ERROR_ASYNC" />
+        <appender-ref ref="stdout" />
     </root>
 
 </configuration>

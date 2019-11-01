@@ -1,0 +1,24 @@
+[21:00:48.801][AWT-EventQueue-0][INFO ][][sIp=,uIp=,uId=,uName=,platform=][com.tu.xinghao.ai.impl.Easy12306Ai:33] printCode: body=text:锦旗
+,images:烛台
+,口哨
+,档案袋
+,锦旗
+,锦旗
+,烛台
+,口哨
+,鞭炮
+
+[21:00:48.805][AWT-EventQueue-0][INFO ][][sIp=,uIp=,uId=,uName=,platform=][com.tu.xinghao.ai.impl.Easy12306Ai:46] 验证码:123,4,5678
+[21:06:31.588][AWT-EventQueue-0][INFO ][][sIp=,uIp=,uId=,uName=,platform=][com.tu.xinghao.ai.impl.Easy12306Ai:33] body：{}text:耳塞
+,images:耳塞
+,公交卡
+,创可贴
+,创可贴
+,公交卡
+,拖把
+,安全帽
+,安全帽
+
+[21:06:31.591][AWT-EventQueue-0][INFO ][][sIp=,uIp=,uId=,uName=,platform=][com.tu.xinghao.ai.impl.Easy12306Ai:46] 验证码:12345678
+[21:11:19.760][AWT-EventQueue-0][INFO ][][sIp=,uIp=,uId=,uName=,platform=][com.tu.xinghao.service.LoginService:90] check:false
+[21:11:20.554][AWT-EventQueue-0][INFO ][][sIp=,uIp=,uId=,uName=,platform=][com.tu.xinghao.service.LoginService:90] check:false

@@ -34,6 +34,7 @@ public class LoginEvent<T> {
     public void addEvent() {
         log.info("初始化cookie...");
         loginService.initTicket();
+        loginService.init();
 
         log.info("初始化验证码...");
         login.getVerificationCode().setIcon(new ImageIcon(loginService.getVerificationCode()));

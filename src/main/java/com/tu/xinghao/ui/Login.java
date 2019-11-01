@@ -70,7 +70,7 @@ public class Login<T> {
             passwordField.setBounds(123, 67, 230, 33);
             frame.getContentPane().add(passwordField);
 
-            msgLabel = new JLabel("提示：选择完验证码后，右击同样可以提交哦");
+            msgLabel = new JLabel("提示：选择完验证码后，提交验证码");
             msgLabel.setBounds(61, 340, 337, 29);
             msgLabel.setForeground(Color.blue);
             frame.getContentPane().add(msgLabel);

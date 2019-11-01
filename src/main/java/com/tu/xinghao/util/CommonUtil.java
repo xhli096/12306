@@ -1,10 +1,12 @@
 package com.tu.xinghao.util;
 
+import cn.hutool.core.util.RandomUtil;
 import org.apache.log4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.RoundingMode;
 
 /**
  * @author: lixinghao
@@ -37,5 +39,9 @@ public class CommonUtil {
         }
 
         return result;
+    }
+
+    public static String randNumber() {
+        return String.valueOf(RandomUtil.randomDouble(0, 0.9, 17, RoundingMode.HALF_UP));
     }
 }

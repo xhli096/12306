@@ -4,12 +4,15 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.http.Method;
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
 import com.google.common.base.Strings;
 import com.tu.xinghao.constants.CommonConstant;
 import com.tu.xinghao.constants.EnumUrls;
 import com.tu.xinghao.vo.UrlConfig;
 
 import java.net.HttpCookie;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -26,6 +29,10 @@ public class Session {
 
     public Session() {
         httpClient = new HttpClient();
+    }
+
+    public HttpClient getHttpClient() {
+        return httpClient;
     }
 
     public String getToken() {
@@ -49,7 +56,7 @@ public class Session {
         this.cookie += cookie;
     }
 
-    public void setCookit(List<HttpCookie> cookies) {
+    public void setCookie(List<HttpCookie> cookies) {
         cookies.forEach(item -> {
             if (Strings.isNullOrEmpty(cookie)) {
                 this.cookie = "";
@@ -92,12 +99,16 @@ public class Session {
             UrlConfig urlConfig = enumUrls.getUrlConfig();
 
             if (Objects.isNull(httpRequest)) {
-                httpRequest = HttpUtil.createGet(urlConfig.getUrl());
+                if (CommonConstant.HTTP_POST.equalsIgnoreCase(enumUrls.getUrlConfig().getMethod())) {
+                    httpRequest = HttpUtil.createPost(urlConfig.getUrl());
+                } else {
+                    httpRequest = HttpUtil.createGet(urlConfig.getUrl());
+                }
                 httpRequest.header("Host", CommonConstant.HOST);
                 httpRequest.header("Connection", "keep-alive");
                 httpRequest.header("Accept", CommonConstant.ACCEPT);
-            }
-            if (Objects.nonNull(httpRequest)) {
+                httpRequest.header("Content-Type", "application/json");
+            } else {
                 httpRequest.setUrl(urlConfig.getUrl());
                 httpRequest.setMethod(getMethod(urlConfig.getMethod()));
             }
@@ -108,10 +119,14 @@ public class Session {
             if (!Strings.isNullOrEmpty(cookie)) {
                 httpRequest.header("Cookie", cookie);
             }
-
             if (Objects.nonNull(params)) {
-                httpRequest.form(params);
+                System.out.println(JSONUtil.toJsonStr(params));
+                httpRequest.body(JSONUtil.toJsonStr(params));
             }
+
+            System.out.println("=======================");
+            System.out.println(httpRequest);
+            System.out.println("=======================");
 
             if (async) {
                 return httpRequest.executeAsync();

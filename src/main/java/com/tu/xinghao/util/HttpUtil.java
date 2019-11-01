@@ -1,6 +1,7 @@
 package com.tu.xinghao.util;
 
 import com.google.common.collect.Lists;
+import com.tu.xinghao.constants.CommonConstant;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -60,6 +61,9 @@ public class HttpUtil {
         RequestConfig config = RequestConfig.custom().setConnectTimeout(10000).setSocketTimeout(10000).build();
         post.setConfig(config);
         post.addHeader("Content-Type", "application/json");
+        post.addHeader("Host", CommonConstant.HOST);
+        post.addHeader("Connection", "keep-alive");
+        post.addHeader("Accept", CommonConstant.ACCEPT);
 
         List<NameValuePair> mapParam = buildPostMapParam(params);
         try {
